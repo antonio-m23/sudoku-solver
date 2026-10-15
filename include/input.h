@@ -11,4 +11,7 @@ int input_read_menu_choice(void);
 // Legge manualmente una griglia sudoku riga x riga.
 int input_read_manual_sudoku(Sudoku *sudoku);
 
+// Legge una griglia Sudoku da file di testo.
+int input_read_sudoku_file(const char *filename, Sudoku *sudoku);
+
 #endif

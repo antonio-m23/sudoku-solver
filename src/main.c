@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sudoku.h>
 #include <input.h>
+#include <string.h>
 
 int main (void) {
     int choice;
@@ -22,16 +23,36 @@ int main (void) {
 
     // Gestisce scelta utente.
     switch (choice) {
-        case 1:
+        case 1: {
             Sudoku puzzle = {0}; // Inizializza la griglia a zero.
 
             if (input_read_manual_sudoku(&puzzle)) {
                 printf("Sudoku entered successfully.\n");
             }
             break;
-        case 2:
-            printf("File input selected.\n");
+        }
+        case 2: {
+            Sudoku puzzle = {0};
+            char filename[256];
+
+            // Richiede all'utente il percorso del file da caricare.
+            printf("Enter a file path: ");
+
+            if (fgets(filename, sizeof(filename), stdin) == NULL) {
+                printf("Input error.\n");
+                break;
+            }
+
+            // Rimuove eventuali caratteri di fine riga aggiunti da fgets.
+            filename[strcspn(filename, "\r\n")] = '\0';
+
+            // Tenta di caricare il Sudoku dal file specificato.
+            if (input_read_sudoku_file(filename, &puzzle)) {
+                printf("Sudoku loaded successfully.\n");
+            }
+
             break;
+        }
         case 3:
             printf("Exiting program.\n");
             break;

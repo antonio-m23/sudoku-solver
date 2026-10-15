@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "input.h"
 
 // Legge una scelta valida per il menu principale.
@@ -97,4 +98,70 @@ int input_read_manual_sudoku (Sudoku *sudoku) {
 }
 
 return 1;
+}
+
+
+// Legge griglia sudoku da file testo.
+int input_read_sudoku_file(const char *filename, Sudoku *sudoku) {
+    FILE *file;
+    char row_input[SUDOKU_SIZE + 3];
+
+    // Apre il file in modalità lettura.
+    file = fopen(filename, "r");
+
+    if (file == NULL) {
+        printf("Error: unable to open file '%s'.\n", filename);
+        return 0;
+    }
+
+    // Legge esattamente le 9 righe della griglia.
+    for (int row = 0; row < SUDOKU_SIZE; row++) {
+        if (fgets(row_input, sizeof(row_input), file) == NULL) {
+            printf("Invalid file: expected %d rows.\n", SUDOKU_SIZE);
+            fclose(file);
+            return 0;
+        }
+
+        size_t length = strlen(row_input);
+
+        // Rimuove il newline finale, se presente.
+        if (length > 0 && row_input[length - 1] == '\n') {
+            row_input[length - 1] = '\0';
+            length--;
+        }
+
+        // Ogni riga deve contenere esattamente SUDOKU_SIZE caratteri.
+        if (length != SUDOKU_SIZE) {
+            printf("Invalid file: row %d must contain exactly %d characters.\n", row + 1, SUDOKU_SIZE);
+
+            fclose(file);
+            return 0;
+        }
+
+        // Controlla e converte ogni cella.
+        for (int col = 0; col < SUDOKU_SIZE; col++) {
+            char cell = row_input[col];
+
+            if (cell >= '1' && cell <= '9') {
+                sudoku->cells[row][col] = cell - '0';
+            } else if (cell == '.' || cell == '-') {
+                sudoku->cells[row][col] = EMPTY_CELL;
+            } else {
+                printf("Invalid file: invalid character '%c' at row %d , column %d.\n", cell, row +1, col +1);
+
+                fclose(file);
+                return 0;
+            }
+        }
+    }
+
+    // Dopo la nona riga non devono esserci altre righe.
+    if (fgets(row_input, sizeof(row_input), file) != NULL) {
+        printf("Invalid file: too many rows.\n");
+        fclose(file);
+        return 0;
+    }
+
+    fclose(file);
+    return 1;
 }
