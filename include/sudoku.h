@@ -14,7 +14,13 @@ typedef struct {
     int cells[SUDOKU_SIZE][SUDOKU_SIZE];
 } Sudoku;
 
-// Stampa alcuni valori per verificare il modello dei dati.
-void sudoku_print_test(const Sudoku *Sudoku);
+// Stampa la griglia Sudoku in un formato leggibile.
+void sudoku_print(const Sudoku *sudoku);
+
+// Verifica che la griglia rispetti le regole del Sudoku.
+int sudoku_validate(const Sudoku *sudoku);
+
+// Verifica se tutte le celle della griglia sono state compilate.
+int sudoku_is_complete(const Sudoku *sudoku);
 
 #endif

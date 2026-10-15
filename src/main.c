@@ -2,8 +2,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sudoku.h>
-#include <input.h>
+#include "sudoku.h"
+#include "input.h"
 #include <string.h>
 
 int main (void) {
@@ -29,7 +29,16 @@ int main (void) {
             if (input_read_manual_sudoku(&puzzle)) {
                 printf("Sudoku entered successfully.\n");
             }
-            break;
+
+            sudoku_print(&puzzle);
+            
+            if (sudoku_validate(&puzzle)) {
+                if (sudoku_is_complete(&puzzle)) {
+                    printf("\nThe sudoku is already complete and valid.\n");
+                } else {
+                    printf("\nSudoku is valid.\n");
+                }
+            }
         }
         case 2: {
             Sudoku puzzle = {0};
@@ -51,7 +60,15 @@ int main (void) {
                 printf("Sudoku loaded successfully.\n");
             }
 
-            break;
+            sudoku_print(&puzzle);
+
+            if (sudoku_validate(&puzzle)) {
+                if (sudoku_is_complete(&puzzle)) {
+                    printf("\nThe sudoku is already complete and valid.\n");
+                } else {
+                    printf("\nSudoku is valid.\n");
+                }
+            }
         }
         case 3:
             printf("Exiting program.\n");
