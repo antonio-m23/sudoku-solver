@@ -2,9 +2,12 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 #include "sudoku.h"
 #include "input.h"
-#include <string.h>
+#include "solver.h"
+
 
 int main (void) {
     int choice;
@@ -36,9 +39,18 @@ int main (void) {
                 if (sudoku_is_complete(&puzzle)) {
                     printf("\nThe sudoku is already complete and valid.\n");
                 } else {
-                    printf("\nSudoku is valid.\n");
+                    printf("\nSudoku is valid. Solving...\n");
+
+                    if (solver_solve(&puzzle)) {
+                        printf("Soluction found:\n\n");
+                        sudoku_print(&puzzle);
+                    } else {
+                        printf("No soluction exist for this Sudoku.\n");
+                    }
                 }
             }
+
+            break;
         }
         case 2: {
             Sudoku puzzle = {0};
@@ -66,9 +78,18 @@ int main (void) {
                 if (sudoku_is_complete(&puzzle)) {
                     printf("\nThe sudoku is already complete and valid.\n");
                 } else {
-                    printf("\nSudoku is valid.\n");
+                    printf("\nSudoku is valid. Solving...\n");
+
+                    if (solver_solve(&puzzle)) {
+                        printf("Soluction found:\n\n");
+                        sudoku_print(&puzzle);
+                    } else {
+                        printf("No soluction exist for this Sudoku.\n");
+                    }
                 }
             }
+
+            break;
         }
         case 3:
             printf("Exiting program.\n");
