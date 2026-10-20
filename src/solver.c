@@ -1,5 +1,7 @@
 
 
+#include <stddef.h>
+
 #include "solver.h"
 
 // Cerca la prima cella vuota nella griglia.
@@ -62,12 +64,66 @@ int solver_can_place (
     return 1;
 }
 
-// Risolve la griglia Sudoku utilizzando il backtracking.
-int solver_solve(Sudoku *sudoku) {
+// Conta quanti valori validi possono essere inseriti in una cella vuota.
+static int solver_count_candidates(
+    const Sudoku *sudoku,
+    int row,
+    int col
+) {
+    int count = 0;
+
+    for (int value = 1; value <= SUDOKU_SIZE; value++) {
+        if (solver_can_place(sudoku, row, col, value)) {
+            count++;
+        }
+    }
+
+    return count;
+}
+
+// Trova la cella vuota con il minor numero di candidati validi.
+static int solver_find_mrv_cell(
+    const Sudoku *sudoku,
+    int *row,
+    int *col
+) {
+    int min_candidates = SUDOKU_SIZE + 1;
+    int found = 0;
+
+    for (int r = 0; r < SUDOKU_SIZE; r++) {
+        for (int c = 0; c < SUDOKU_SIZE; c++) {
+            if (sudoku -> cells[r][c] != EMPTY_CELL) {
+                continue;
+            }
+
+            int candidates = solver_count_candidates(sudoku, r, c);
+
+            if (candidates < min_candidates) {
+                min_candidates = candidates;
+                *row = r;
+                *col = c;
+                found = 1;
+            }
+
+            // Nessun candidato significa che il ramo corrente non può portare ad una soluzione.
+            if (min_candidates == 0) {
+                return 1;
+            }
+        }
+    }
+
+    return found;
+}
+
+// Implementa il backtracking ricorsivo e, se richiesto, aggiorna statistiche durante la ricerca.
+static int solver_solve_recursive(
+    Sudoku *sudoku,
+    SolverStats *stats
+) {
     int row;
     int col;
 
-    // Se non esistono piu' celle vuote, il Sudoku e' risolto.
+    // Se non esistono più celle vuote, il Sudoku è risolto.
     if (!solver_find_empty(sudoku, &row, &col)) {
         return 1;
     }
@@ -75,19 +131,102 @@ int solver_solve(Sudoku *sudoku) {
     // Prova tutti i valori possibili da 1 a 9.
     for (int value = 1; value <= SUDOKU_SIZE; value++) {
         if (solver_can_place(sudoku, row, col, value)) {
-            // Inserisce temporaneamente il valore nella cella.
-            sudoku->cells[row][col] = value;
+            // Inserisce temporaneamente un candidato valido.
+            sudoku -> cells[row][col] = value;
+
+            if (stats != NULL) {
+                stats -> assignments++;
+            }
 
             // Prosegue ricorsivamente dalla nuova configurazione.
-            if (solver_solve(sudoku)) {
+            if (solver_solve_recursive(sudoku, stats)) {
                 return 1;
             }
 
-            // La scelta non porta a una soluzione: annulla la mossa.
-            sudoku->cells[row][col] = EMPTY_CELL;
+            // La scelta non porta ad una soluzione: annulla la mossa.
+            sudoku -> cells[row][col] = EMPTY_CELL;
+
+            if (stats != NULL) {
+                stats -> backtracks++;
+            }
         }
     }
 
-    // Nessun valore permette di risolvere questa configurazione.
     return 0;
+}
+
+// Implementa il backtracking utilizzando l'euristica MRV.
+static int solver_solve_mrv_recursive(
+    Sudoku *sudoku,
+    SolverStats *stats
+) {
+    int row;
+    int col;
+
+    // Se non esistono celle vuote, il Sudoku è risolto.
+    if (!solver_find_mrv_cell(sudoku, &row, &col)) {
+        return 1;
+    }
+
+    // Prova tutti i valori possibili nella cella scelta da MRV.
+    for (int value = 1; value <= SUDOKU_SIZE; value++) {
+        if (solver_can_place(sudoku, row, col, value)) {
+            sudoku -> cells[row][col] = value;
+
+            if (stats != NULL) {
+                stats -> assignments++;
+            }
+
+            if (solver_solve_mrv_recursive(sudoku, stats)) {
+                return 1;
+            }
+
+            sudoku -> cells[row][col] = EMPTY_CELL;
+
+            if (stats != NULL) {
+                stats -> backtracks++;
+            }
+        }
+    }
+
+    return 0;
+}
+
+// Risolve la griglia sudoku senza raccogliere statistiche.
+int solver_solve(Sudoku *sudoku) {
+    return solver_solve_recursive(sudoku, NULL);
+}
+
+// Risolve la griglia Sudoku raccogliendo statistiche sull'esecuzione.
+int solver_solve_with_stats(
+    Sudoku *sudoku,
+    SolverStats *stats
+) {
+    if (stats == NULL) {
+        return solver_solve(sudoku);
+    }
+
+    // Azzera i contatori prima di ogni nuova risoluzione.
+    stats -> assignments = 0;
+    stats -> backtracks = 0;
+
+    return solver_solve_recursive(sudoku, stats);
+}
+
+int solver_solve_mrv(Sudoku *sudoku) {
+    return solver_solve_mrv_recursive(sudoku, NULL);
+}
+
+int solver_solve_mrv_with_stats(
+    Sudoku *sudoku,
+    SolverStats *stats
+) {
+    if (stats == NULL) {
+        return solver_solve_mrv(sudoku);
+    }
+
+    stats -> assignments = 0;
+    stats -> backtracks = 0;
+
+    return solver_solve_mrv_recursive(sudoku, stats);
 }

@@ -81,6 +81,74 @@ int main(void) {
     // tutte le modifiche effettuate sulle celle vuote.
     assert(unsolvable_puzzle.cells[0][2] == EMPTY_CELL);
 
+    Sudoku stats_puzzle = {
+        .cells = {
+            {5, 3, 0, 0, 7, 0, 0, 0, 0},
+            {6, 0, 0, 1, 9, 5, 0, 0, 0},
+            {0, 9, 8, 0, 0, 0, 0, 6, 0},
+            {8, 0, 0, 0, 6, 0, 0, 0, 3},
+            {4, 0, 0, 8, 0, 3, 0, 0, 1},
+            {7, 0, 0, 0, 2, 0, 0, 0, 6},
+            {0, 6, 0, 0, 0, 0, 2, 8, 0},
+            {0, 0, 0, 4, 1, 9, 0, 0, 5},
+            {0, 0, 0, 0, 8, 0, 0, 7, 9}
+        }
+    };
+
+    SolverStats stats = {0};
+
+    // Il solver deve risolvere la griglia e raccogliere statistiche.
+    assert(solver_solve_with_stats(&stats_puzzle, &stats) == 1);
+
+    // Devono essere state effettuate delle assegnazioni.
+    assert(stats.assignments > 0);
+
+    // I backtrack non possono superare il numero di assegnazioni.
+    assert(stats.backtracks <= stats.assignments);
+
+    printf(
+        "Backtracking stats - Assignments: %lu, Backtracks: %lu\n",
+        stats.assignments,
+        stats.backtracks
+    );
+
+    Sudoku mrv_stats_puzzle = {
+        .cells = {
+            {5, 3, 0, 0, 7, 0, 0, 0, 0},
+            {6, 0, 0, 1, 9, 5, 0, 0, 0},
+            {0, 9, 8, 0, 0, 0, 0, 6, 0},
+            {8, 0, 0, 0, 6, 0, 0, 0, 3},
+            {4, 0, 0, 8, 0, 3, 0, 0, 1},
+            {7, 0, 0, 0, 2, 0, 0, 0, 6},
+            {0, 6, 0, 0, 0, 0, 2, 8, 0},
+            {0, 0, 0, 4, 1, 9, 0, 0, 5},
+            {0, 0, 0, 0, 8, 0, 0, 7, 9}
+        }
+    };
+
+    SolverStats mrv_stats = {0};
+
+    // Il solver MRV deve risolvere la stessa griglia.
+    assert(solver_solve_mrv_with_stats(
+        &mrv_stats_puzzle,
+        &mrv_stats
+    ) == 1);
+
+    // Devono essere state effettuate delle assegnazioni.
+    assert(mrv_stats.assignments > 0);
+
+    // I backtrack non possono superare le assegnazioni.
+    assert(mrv_stats.backtracks <= mrv_stats.assignments);
+
+    printf(
+        "MRV stats          - Assignments: %lu, Backtracks: %lu\n",
+        mrv_stats.assignments,
+        mrv_stats.backtracks
+    );
+
+    assert(mrv_stats.assignments <= stats.assignments);
+    assert(mrv_stats.backtracks <= stats.backtracks);
+
     printf("All solver tests passed.\n");
     
     return 0;
