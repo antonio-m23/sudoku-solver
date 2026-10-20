@@ -227,6 +227,6 @@ int solver_solve_mrv_with_stats(
 
     stats -> assignments = 0;
     stats -> backtracks = 0;
-
+    
     return solver_solve_mrv_recursive(sudoku, stats);
 }

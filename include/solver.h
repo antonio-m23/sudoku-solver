@@ -9,7 +9,6 @@
 typedef struct {
     unsigned long assignments;
     unsigned long backtracks;
-    double elapse
 } SolverStats;
 
 // Verifica che un valore può essere inserito in una determinata cella, senza violare le regole.
