@@ -11,6 +11,13 @@ typedef struct {
     unsigned long backtracks;
 } SolverStats;
 
+// Rappresenta il numero di soluzioni individuate per un Sudoku.
+typedef enum {
+    SOLVER_NO_SOLUTION = 0,
+    SOLVER_UNIQUE_SOLUTION = 1,
+    SOLVER_MULTIPLE_SOLUTIONS = 2
+} SolverSolutionStatus;
+
 // Verifica che un valore può essere inserito in una determinata cella, senza violare le regole.
 int solver_can_place (
     const Sudoku *sudoku,
@@ -35,6 +42,12 @@ int solver_solve_mrv(Sudoku *sudoku);
 int solver_solve_mrv_with_stats(
     Sudoku *sudoku,
     SolverStats *stats
+);
+
+// Determina se il Sudoku non ha soluzioni, ne ha una sola
+// oppure possiede soluzioni multiple.
+SolverSolutionStatus solver_check_uniqueness(
+    const Sudoku *sudoku
 );
 
 #endif

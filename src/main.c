@@ -39,13 +39,23 @@ int main (void) {
                 if (sudoku_is_complete(&puzzle)) {
                     printf("\nThe sudoku is already complete and valid.\n");
                 } else {
-                    printf("\nSudoku is valid. Solving...\n");
+                    printf("\nSudoku is valid. Analyzing...\n\n");
 
-                    if (solver_solve(&puzzle)) {
-                        printf("Soluction found:\n\n");
+                    SolverSolutionStatus status = solver_check_uniqueness(&puzzle);
+
+                    if (status == SOLVER_NO_SOLUTION) {
+                        printf("No solution exists for this Sudoku.\n");
+                    } else if (status == SOLVER_UNIQUE_SOLUTION) {
+                        solver_solve_mrv(&puzzle);
+
+                        printf("Unique solution found:\n\n");
                         sudoku_print(&puzzle);
                     } else {
-                        printf("No soluction exist for this Sudoku.\n");
+                        solver_solve_mrv(&puzzle);
+
+                        printf("Multiple solutions exist.\n");
+                        printf("One possible solution is: \n\n");
+                        sudoku_print(&puzzle);
                     }
                 }
             }
@@ -78,13 +88,23 @@ int main (void) {
                 if (sudoku_is_complete(&puzzle)) {
                     printf("\nThe sudoku is already complete and valid.\n");
                 } else {
-                    printf("\nSudoku is valid. Solving...\n");
+                    printf("\nSudoku is valid. Analyzing...\n\n");
 
-                    if (solver_solve(&puzzle)) {
-                        printf("Soluction found:\n\n");
+                    SolverSolutionStatus status = solver_check_uniqueness(&puzzle);
+
+                    if (status == SOLVER_NO_SOLUTION) {
+                        printf("No solution exists for this Sudoku.\n");
+                    } else if (status == SOLVER_UNIQUE_SOLUTION) {
+                        solver_solve_mrv(&puzzle);
+
+                        printf("Unique solutiuon found.\n\n");
                         sudoku_print(&puzzle);
                     } else {
-                        printf("No soluction exist for this Sudoku.\n");
+                        solver_solve_mrv(&puzzle);
+
+                        printf("Multiple solutions exist. \n");
+                        printf("One possible solution is: \n\n");
+                        sudoku_print(&puzzle);
                     }
                 }
             }

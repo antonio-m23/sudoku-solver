@@ -192,6 +192,45 @@ static int solver_solve_mrv_recursive(
     return 0;
 }
 
+// Conta le soluzioni del Sudoku fino ad un massimo di due.
+static void solver_count_solutions_recursive(
+    Sudoku *sudoku,
+    int *solution_count
+){
+    int row;
+    int col;
+
+    // Se abbiamo già trovato due soluzioni, possiamo fermarci.
+    if (*solution_count >= 2) {
+        return;
+    }
+
+    // Se non esistono celle vuote, abbiamo una soluzione completa.
+    if (!solver_find_mrv_cell(sudoku, &row, &col)) {
+        (*solution_count)++;
+        return;
+    }
+
+    for (int value = 1; value <= SUDOKU_SIZE; value++) {
+        if (solver_can_place(sudoku, row, col, value)) {
+            sudoku -> cells[row][col] = value;
+
+            solver_count_solutions_recursive(
+                sudoku,
+                solution_count
+            );
+
+            // Ripristina sempre la cella per continuare la ricerca.
+            sudoku -> cells[row][col] = EMPTY_CELL;
+
+            // Non serve esplorare altri rami dopo la seconda soluzione.
+            if (*solution_count >= 2) {
+                return;
+            }
+        }
+    }
+}
+
 // Risolve la griglia sudoku senza raccogliere statistiche.
 int solver_solve(Sudoku *sudoku) {
     return solver_solve_recursive(sudoku, NULL);
@@ -229,4 +268,26 @@ int solver_solve_mrv_with_stats(
     stats -> backtracks = 0;
     
     return solver_solve_mrv_recursive(sudoku, stats);
+}
+
+SolverSolutionStatus solver_check_uniqueness(
+    const Sudoku *sudoku
+) {
+    Sudoku puzzle_copy = *sudoku;
+    int solution_count = 0;
+
+    solver_count_solutions_recursive(
+        &puzzle_copy,
+        &solution_count
+    );
+
+    if (solution_count == 0) {
+        return SOLVER_NO_SOLUTION;
+    }
+
+    if (solution_count == 1) {
+        return SOLVER_UNIQUE_SOLUTION;
+    }
+
+    return SOLVER_MULTIPLE_SOLUTIONS;
 }

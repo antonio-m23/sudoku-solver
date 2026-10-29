@@ -149,6 +149,63 @@ int main(void) {
     assert(mrv_stats.assignments <= stats.assignments);
     assert(mrv_stats.backtracks <= stats.backtracks);
 
+    Sudoku uniqueness_unique = {
+        .cells = {
+            {5, 3, 0, 0, 7, 0, 0, 0, 0},
+            {6, 0, 0, 1, 9, 5, 0, 0, 0},
+            {0, 9, 8, 0, 0, 0, 0, 6, 0},
+            {8, 0, 0, 0, 6, 0, 0, 0, 3},
+            {4, 0, 0, 8, 0, 3, 0, 0, 1},
+            {7, 0, 0, 0, 2, 0, 0, 0, 6},
+            {0, 6, 0, 0, 0, 0, 2, 8, 0},
+            {0, 0, 0, 4, 1, 9, 0, 0, 5},
+            {0, 0, 0, 0, 8, 0, 0, 7, 9}
+        }
+    };
+
+    assert(
+        solver_check_uniqueness(&uniqueness_unique)
+        == SOLVER_UNIQUE_SOLUTION
+    );
+
+    Sudoku uniqueness_unsolvable = {
+        .cells = {
+            {1, 3, 0, 0, 7, 0, 0, 0, 0},
+            {6, 0, 0, 1, 9, 5, 0, 0, 0},
+            {0, 9, 8, 0, 0, 0, 0, 6, 0},
+            {8, 0, 0, 0, 6, 0, 0, 0, 3},
+            {4, 0, 0, 8, 0, 3, 0, 0, 1},
+            {7, 0, 0, 0, 2, 0, 0, 0, 6},
+            {0, 6, 0, 0, 0, 0, 2, 8, 0},
+            {0, 0, 0, 4, 1, 9, 0, 0, 5},
+            {0, 0, 0, 0, 8, 0, 0, 7, 9}
+        }
+    };
+
+    assert(
+        solver_check_uniqueness(&uniqueness_unsolvable)
+        == SOLVER_NO_SOLUTION
+    );
+
+    Sudoku uniqueness_multiple = {
+        .cells = {
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 0, 0, 0}
+        }
+    };
+
+    assert(
+        solver_check_uniqueness(&uniqueness_multiple)
+        == SOLVER_MULTIPLE_SOLUTIONS
+    );
+
     printf("All solver tests passed.\n");
     
     return 0;
